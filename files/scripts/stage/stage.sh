@@ -13,30 +13,11 @@ dnf5 install -y \
         make \
         pkgconf-pkg-config
 
-# kmon
-cargo install --root /tmp --locked --target "${TARGET_TRIPLE}" kmon
-
 # viddy
 cargo install --root /tmp --locked --target "${TARGET_TRIPLE}" viddy
 
-# xan
-cargo install --root /tmp --locked --target "${TARGET_TRIPLE}" xan
-
-# doxx
-dnf5 install -y \
-        libxcb-devel
-cargo install --root /tmp --locked --target "${TARGET_TRIPLE}" doxx
-
-# xleak
-dnf5 install -y \
-        libxcb-devel
-cargo install --root /tmp --locked --target "${TARGET_TRIPLE}" xleak
-
 # croft-software
 cargo install --root /tmp --locked --target "${TARGET_TRIPLE}" croft-software
-
-# eilmeldung
-cargo install --root /tmp --locked --target "${TARGET_TRIPLE}" eilmeldung
 
 # elio
 cargo install --root /tmp --locked --target "${TARGET_TRIPLE}" elio
@@ -46,12 +27,6 @@ dnf5 install -y \
         sqlite-devel \
         openssl-devel
 LIBSQLITE3_SYS_USE_PKG_CONFIG=1 cargo install --root /tmp --locked --target "${TARGET_TRIPLE}" papr-tui
-
-# asak
-dnf5 install -y \
-        alsa-lib-devel \
-        jack-audio-connection-kit-devel
-cargo install --root /tmp --target "${TARGET_TRIPLE}" asak
 
 # kittybrowser
 dnf5 install -y \
@@ -63,7 +38,7 @@ dnf5 install -y \
 	pkg-config \
 	cmake \
 	libpcap-devel
-cargo install --root /tmp --target "${TARGET_TRIPLE}" /tmp netop
+cargo install --root /tmp --target "${TARGET_TRIPLE}" netop
 
 # terminactory
 dnf5 install -y \
@@ -72,15 +47,9 @@ cargo install --root /tmp --target "${TARGET_TRIPLE}" --git https://gitlab.com/s
 
 # tidemail
 curl -fsSL "https://github.com/allisonhere/tidemail/releases/latest/download/tidemail-linux-x86_64.tar.gz" -o "/tmp/tidemail.tar.gz"
-tar xzf tidemail.tar.gz -C /tmp/
+tar xzf /tmp/tidemail.tar.gz -C /tmp/
 cp /tmp/tidemail-linux-x86_64 /tmp/bin/tidemail
 chmod +x /tmp/bin/tidemail
-
-# solipsist
-curl -fsSL "https://github.com/pulkitsharma07/solipsist/releases/latest/download/solipsist-linux-x64.tar.gz" -o "/tmp/solipsist.tar.gz"
-tar xzf /tmp/solipsist.tar.gz -C /tmp/
-cp /tmp/solipsist*/solipsist /tmp/bin/solipsist
-chmod +x /tmp/bin/solipsist
 
 # crow
 curl -fsSL "https://github.com/errorware/crow/releases/latest/download/crow-linux-x86_64.tar.gz" -o "/tmp/crow.tar.gz"

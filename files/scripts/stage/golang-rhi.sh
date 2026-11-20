@@ -14,40 +14,23 @@ dnf5 install -y \
 raelynn="go install -trimpath -ldflags=-s -ldflags=-w"
 export GOBIN=/tmp/bin
 
-# ==============================================================================
-# 1. lazyjournal (TUI for journalctl, file logs, and container logs)
-# ==============================================================================
-$raelynn github.com/Lifailon/lazyjournal@latest
-
-# ==============================================================================
-# 2. lazygit (Terminal UI for git commands)
-# ==============================================================================
+# lazygit
 $raelynn github.com/jesseduffield/lazygit@latest
 
-# ==============================================================================
-# 3. glow (Markdown reader on the CLI)
-# ==============================================================================
+# glow
 $raelynn github.com/charmbracelet/glow/v2@latest
 
-# ==============================================================================
-# 4. lazyskills (TUI skill manager)
-# ==============================================================================
+# lazyskills
 $raelynn github.com/alvinunreal/lazyskills/cmd/lazyskills@latest
 
-# ==============================================================================
-# 5. failtrace (Failure trace analyzer)
-# ==============================================================================
+# failtrace
 $raelynn github.com/Ri4dH/failtrace/cmd/failtrace@latest
 
-# ==============================================================================
-# 6. onda (Terminal audio/radio player)
-# ==============================================================================
+# onda
 $raelynn github.com/pedrosousa13/onda@latest
 
-# ==============================================================================
-# 7. halpradio (Terminal internet radio player)
-# ==============================================================================
+# halpradio
 $raelynn github.com/halpworld/halpradio@latest
 
-# Clean up Go module/build cache in /root/go so it doesn't bloat stage layers
+# Clean up 
 go clean -cache -modcache

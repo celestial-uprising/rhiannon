@@ -1,4 +1,8 @@
 // https://niri-wm.github.io/niri/Configuration:-Introduction
+output "eDP-1" {
+	mode "1366x768@60.059"
+	scale 0.90
+	}
 input {
     keyboard {
         xkb {
@@ -33,7 +37,7 @@ layout {
         off
     }
   }
-spawn-at-startup "/usr/bin/ironbar"
+spawn-at-startup "waybar"
 spawn-at-startup "swaybg" "-m" "fill" "-i" "/etc/default/background"
 spawn-at-startup "dunst"
 spawn-at-startup "/usr/libexec/xfce-polkit"

@@ -1,0 +1,34 @@
+name: Sign Locally Built BlueBuild Image
+
+on:
+  registry_package:
+    types: [published]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  sign-image:
+    runs-on: ubuntu-latest
+    if: ${{ !endsWith(github.event.registry_package.package_version.container_metadata.tag.name, '.sig') }}
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign image with BlueBuild private key
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
+          COSIGN_PASSWORD: ""
+          IMAGE_URL: ${{ github.event.registry_package.package_version.package_url }}
+          DIGEST: ${{ github.event.registry_package.package_version.version }}
+        run: |
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY "${IMAGE_URL}@${DIGEST}"
+

@@ -1,10 +1,10 @@
-name: oglaroon
+name: rhiannon
 description: Celestial Uprising's Immutable Operating System
 base-image: quay.io/fedora/fedora-bootc
-image-version: rawhide
+image-version: 44
 stages:
   - name: builder
-    from: quay.io/fedora/fedora:rawhide
+    from: quay.io/fedora/fedora:44
     modules:
       - type: copy
         src: files/scripts/stage*/*
@@ -17,9 +17,8 @@ stages:
             bash /tmp/stage.sh
             bash /tmp/golang-rhi.sh
             bash /tmp/pi-bolt.sh
-            bash /tmp/voxtype.sh
   - name: rpm-builder
-    from: quay.io/fedora/fedora:rawhide
+    from: quay.io/fedora/fedora:44
     modules:
       - type: script
         snippets:
@@ -51,13 +50,13 @@ stages:
 modules:
   - type: os-release
     properties:
-      NAME: "Oglaroon"
-      PRETTY_NAME: "Oglaroon c01 by Celestial Uprising"
+      NAME: "Rhiannon"
+      PRETTY_NAME: "Rhiannon c01 by Celestial Uprising"
       VERSION_CODENAME: "bulldozer"
       ID_LIKE: fedora
-      HOME_URL: "https://github.com/celestial-uprising/oglaroon/"
-      BUG_REPORT_URL: "https://github.com/celestial-uprising/oglaroon/"
-      VARIANT: "oglaroon"
+      HOME_URL: "https://github.com/celestial-uprising/rhiannon/"
+      BUG_REPORT_URL: "https://github.com/celestial-uprising/rhiannon/"
+      VARIANT: "rhiannon"
       RELEASE_TYPE: "alpha"
   - type: kargs
     kargs:
@@ -71,13 +70,13 @@ modules:
     dest: /var/tmp/local-bdver4-repo/
   - type: files
     files:
-      - source: etc/yum.repos.d/oglaroon-bdver4.repo
-        destination: /etc/yum.repos.d/oglaroon-bdver4.repo
+      - source: etc/yum.repos.d/rhiannon-bdver4.repo
+        destination: /etc/yum.repos.d/rhiannon-bdver4.repo
   - type: dnf
     repos:
       copr:
-        - name: archjun/mgba
-          chroot: fedora-44-x86_64
+        - scottames/voxtype
+        - archjun/mgba
     install:
       install-weak-deps: false
       packages:
@@ -144,6 +143,7 @@ modules:
         - plymouth-theme-spinner
         - nodejs
         - npm
+        - voxtype
         - waybar
         - loupe
         - clapper
@@ -235,8 +235,7 @@ modules:
           - podman.socket
   - type: script
     scripts:
-      - voxtype-configure.sh
       - twilight.sh
-      - bash-completion-helper.sh
       - annoying.sh
       - regenerateinitramfs.sh
+  - type: signing
