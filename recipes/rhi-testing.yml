@@ -1,0 +1,242 @@
+name: oglaroon
+description: Celestial Uprising's Immutable Operating System
+base-image: quay.io/fedora/fedora-bootc
+image-version: rawhide
+stages:
+  - name: builder
+    from: quay.io/fedora/fedora:rawhide
+    modules:
+      - type: copy
+        src: files/scripts/stage*/*
+        dest: /tmp/
+      - type: script
+        snippets:
+          - mkdir -p /tmp/bin
+          - dnf5 upgrade -y
+          - |
+            bash /tmp/stage.sh
+            bash /tmp/golang-rhi.sh
+            bash /tmp/pi-bolt.sh
+            bash /tmp/voxtype.sh
+  - name: rpm-builder
+    from: quay.io/fedora/fedora:rawhide
+    modules:
+      - type: script
+        snippets:
+          - dnf5 upgrade -y
+          - dnf5 install -y gcc gcc-c++ rpm-build rpmdevtools dnf5-plugins createrepo_c
+          - mkdir -p /var/tmp/srpms /var/tmp/rpm-out /etc/rpm
+          - |
+            cat << 'EOF' > /etc/rpm/macros.bdver4
+            %_arch_optflags -O2 -march=bdver4 -mtune=bdver4 -flto=auto -ffat-lto-objects -pipe -fomit-frame-pointer -fno-semantic-interposition
+            %optflags %{_arch_optflags} -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=3 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches
+            EOF
+          - |
+            TARGET_RPMS="mesa-vulkan-drivers pipewire wireplumber waybar rofi-wayland kitty zram-generator-defaults zstd lz4"
+            for pkg in ${TARGET_RPMS}; do
+              echo "=== Building ${pkg} with GCC -march=bdver4 -O2 -flto=auto ==="
+              if dnf5 download --source --destdir /var/tmp/srpms "${pkg}" && \
+                 dnf5 builddep -y "/var/tmp/srpms/${pkg}"*.src.rpm && \
+                 rpmbuild --rebuild \
+                   --define "_rpmdir /var/tmp/rpm-out" \
+                   --define "optflags $(rpm --eval '%optflags')" \
+                   "/var/tmp/srpms/${pkg}"*.src.rpm; then
+                echo "OK: ${pkg}"
+              else
+                echo "WARN: ${pkg} failed custom rebuild; skipping"
+                rm -f "/var/tmp/srpms/${pkg}"*.src.rpm
+              fi
+            done
+          - createrepo_c /var/tmp/rpm-out
+modules:
+  - type: os-release
+    properties:
+      NAME: "Oglaroon"
+      PRETTY_NAME: "Oglaroon c01 by Celestial Uprising"
+      VERSION_CODENAME: "bulldozer"
+      ID_LIKE: fedora
+      HOME_URL: "https://github.com/celestial-uprising/oglaroon/"
+      BUG_REPORT_URL: "https://github.com/celestial-uprising/oglaroon/"
+      VARIANT: "oglaroon"
+      RELEASE_TYPE: "alpha"
+  - type: kargs
+    kargs:
+      - split_lock_detect=off
+      - transparent_hugepage=madvise
+      - net.ifnames=0
+      - amdgpu.sg_display=0
+  - type: copy
+    from: rpm-builder
+    src: /var/tmp/rpm-out/
+    dest: /var/tmp/local-bdver4-repo/
+  - type: files
+    files:
+      - source: etc/yum.repos.d/oglaroon-bdver4.repo
+        destination: /etc/yum.repos.d/oglaroon-bdver4.repo
+  - type: dnf
+    repos:
+      copr:
+        - name: archjun/mgba
+          chroot: fedora-44-x86_64
+    install:
+      install-weak-deps: false
+      packages:
+        - mpv
+        - chromium-headless
+        - ov
+        - gh
+        - firewalld
+        - nftables
+        - zram-generator-defaults
+        - glibc-langpack-en
+        - podman-compose
+        - podman-docker
+        - podman-remote
+        - buildah
+        - skopeo
+        - crun
+        - cryptsetup
+        - lvm2
+        - btrfs-progs
+        - bind-utils
+        - sysstat
+        - strace
+        - tcpdump
+        - amd-ucode-firmware
+        - microcode_ctl
+        - whois
+        - distrobox
+        - sshfs
+        - rsync
+        - iw
+        - iwd
+        - iwlwifi-mvm-firmware
+        - iwlbluetooth-firmware
+        - mediatek-firmware
+        - NetworkManager-wifi
+        - pciutils
+        - usbutils
+        - kernel-modules-extra
+        - tailscale
+        - libvirt-client
+        - vim
+        - nmap
+        - traceroute
+        - uv
+        - neovim
+        - python3-neovim
+        - luarocks
+        - tree-sitter-cli
+        - fd-find
+        - ripgrep
+        - zoxide
+        - bat
+        - eza
+        - fzf
+        - pdfgrep
+        - powertop
+        - nvtop
+        - btop
+        - gdu
+        - pastel
+        - git
+        - wget
+        - plymouth-theme-spinner
+        - nodejs
+        - npm
+        - waybar
+        - loupe
+        - clapper
+        - mgba-qt
+        - nautilus
+        - glibc
+        - rofi-wayland
+        - google-noto-sans-fonts
+        - google-noto-serif-fonts
+        - niri
+        - xwayland-satellite
+        - upower
+        - spice-vdagent
+        - spice-webdavd
+        - pipewire
+        - mesa-vulkan-drivers
+        - google-crc32c
+        - gnome-keyring
+        - alsa-sof-firmware
+        - bluez-libs
+        - pulseaudio-libs
+        - sddm
+        - xdg-desktop-portal-gnome
+        - xdg-desktop-portal-gtk
+        - xfce-polkit
+        - dunst
+        - swaybg
+        - swaylock
+        - swayidle
+        - wl-clipboard
+        - grim
+        - slurp
+        - brightnessctl
+        - pamixer
+        - pavucontrol
+        - wlr-randr
+        - wlsunset
+        - kanshi
+        - network-manager-applet
+        - blueman
+        - bluez-tools
+        - google-noto-emoji-fonts
+        - qt6-qtvirtualkeyboard
+        - qt6-qt5compat
+        - kitty
+        - zathura
+        - zathura-plugins-all
+        - ffmpeg
+        - ffmpegthumbnailer
+        - remmina
+        - virt-manager
+        - headsetcontrol
+        - mediainfo
+        - playerctl
+        - tuned-ppd
+        - vulkan-validation-layers
+        - vulkan-tools
+        - alsa-firmware
+        - wireplumber
+  - type: files
+    files:
+      - source: etc/
+        destination: /etc/
+      - source: usr/
+        destination: /usr/
+  - type: copy
+    from: builder
+    src: /tmp/skel/
+    dest: /etc/skel/
+  - type: copy
+    from: builder
+    src: /tmp/bin/
+    dest: /usr/bin/
+  - type: fonts
+    fonts:
+      nerd-fonts:
+        - VictorMono
+        - JetBrainsMono
+  - type: systemd
+    system:
+      enabled:
+        - fix-wifi-race.service
+        - sddm.service
+        - tailscaled.service
+        - firewalld.service
+        - iwd.service
+      user:
+        enabled:
+          - podman.socket
+  - type: script
+    scripts:
+      - voxtype-configure.sh
+      - twilight.sh
+      - bash-completion-helper.sh
+      - annoying.sh
+      - regenerateinitramfs.sh

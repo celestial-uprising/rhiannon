@@ -1,0 +1,6 @@
+[oglaroon-bdver4]
+name=Oglaroon Custom bdver4 RPMs
+baseurl=file:///var/tmp/local-bdver4-repo
+enabled=1
+gpgcheck=0
+priority=1
